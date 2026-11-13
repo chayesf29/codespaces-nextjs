@@ -22,11 +22,18 @@ const OUTCOME_MESSAGES = {
   Denied: 'Sorry, your application was not approved',
 }
 
+const OUTCOME_STYLES = {
+  Approved: 'approved',
+  'Manual Review': 'review',
+  Denied: 'denied',
+}
+
 function Home() {
   const [formData, setFormData] = useState(initialForm)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitMessage, setSubmitMessage] = useState('')
   const [outcomeMessage, setOutcomeMessage] = useState('')
+  const [outcomeStyle, setOutcomeStyle] = useState('')
 
   function handleChange(event) {
     const { name, value } = event.target
@@ -51,6 +58,7 @@ function Home() {
     setIsSubmitting(true)
     setSubmitMessage('')
     setOutcomeMessage('')
+    setOutcomeStyle('')
 
     try {
       const response = await fetch('/api/submit', {
@@ -75,6 +83,7 @@ function Home() {
       const outcome = typeof data === 'object' && data !== null ? data.summary?.outcome : null
       setSubmitMessage('Form successfully submitted.')
       setOutcomeMessage(OUTCOME_MESSAGES[outcome] || 'Evaluation response received.')
+      setOutcomeStyle(OUTCOME_STYLES[outcome] || '')
       setFormData(initialForm)
     } catch (error) {
       setSubmitMessage(error.message)
@@ -86,7 +95,8 @@ function Home() {
   return (
     <main className={styles.main}>
       <div className={styles.card}>
-        <h1>D.B. Cooper Savings & Loan</h1>
+      <h1>D.B. Cooper Savings & Loan</h1>
+      <h1>Application</h1>
         <form className={styles.form} onSubmit={handleSubmit}>
           <div className={styles.row}>
             <label className={styles.field}>
@@ -256,7 +266,11 @@ function Home() {
         </form>
 
         {submitMessage ? <p className={styles.message}>{submitMessage}</p> : null}
-        {outcomeMessage ? <p className={styles.message}>{outcomeMessage}</p> : null}
+        {outcomeMessage ? (
+          <p className={`${styles.message} ${outcomeStyle ? styles[outcomeStyle] : ''}`}>
+            {outcomeMessage}
+          </p>
+        ) : null}
       </div>
     </main>
   )
